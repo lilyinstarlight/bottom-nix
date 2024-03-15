@@ -36,6 +36,9 @@ let
   invByteTable = builtins.listToAttrs (builtins.map (name: { name = builtins.toString (builtins.getAttr name byteTable); value = name; }) (builtins.attrNames byteTable));
 
   byteList = input: builtins.genList (n: builtins.getAttr (builtins.substring n 1 input) byteTable) (builtins.stringLength input);
+
+  splitString = regex: string: builtins.filter builtins.isString (builtins.split regex string);
+  removeSuffix = suffix: string: builtins.substring 0 ((builtins.stringLength string) - (builtins.stringLength suffix)) string;
 in rec {
   inherit hexDigit hexByte genByte byteTable invByteTable byteList;
 
@@ -55,7 +58,7 @@ in rec {
   decode = input: let
     decodeByte = byte: let
       numberedString = builtins.replaceStrings [ "🫂" "💖" "✨" "🥺" "," ] [ "200," "50," "10," "5," "1," ] byte;
-      numbered = builtins.map builtins.fromJSON (builtins.filter builtins.isString (builtins.split "," (builtins.substring 0 ((builtins.stringLength numberedString) - 1) numberedString)));
+      numbered = builtins.map builtins.fromJSON (splitString "," (removeSuffix "," numberedString));
     in builtins.getAttr (builtins.toString (builtins.foldl' builtins.add 0 numbered)) invByteTable;
-  in builtins.concatStringsSep "" (builtins.map decodeByte (builtins.filter builtins.isString (builtins.split "👉👈" (builtins.substring 0 ((builtins.stringLength input) - 8) input))));
+  in builtins.concatStringsSep "" (builtins.map decodeByte (splitString "👉👈" (removeSuffix "👉👈" input)));
 }
