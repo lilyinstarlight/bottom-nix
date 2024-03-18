@@ -40,8 +40,6 @@ let
   splitString = regex: string: builtins.filter builtins.isString (builtins.split regex string);
   removeSuffix = suffix: string: builtins.substring 0 ((builtins.stringLength string) - (builtins.stringLength suffix)) string;
 in rec {
-  inherit hexDigit hexByte genByte byteTable invByteTable byteList;
-
   encodeFile = filename: encode (builtins.readFile filename);
   encode = input: let
     encodeNonZeroByte = byte:
